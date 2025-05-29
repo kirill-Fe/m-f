@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Крипто-Ферма</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f1923;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #1a2a3a;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            color: #4fc3f7;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: #253648;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4fc3f7;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #8b9eb0;
+        }
+        
+        .shop {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .item {
+            background-color: #253648;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.3s;
+            border: 1px solid #2d4257;
+        }
+        
+        .item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .item-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #4fc3f7;
+        }
+        
+        .item-level {
+            background-color: #4fc3f7;
+            color: #0f1923;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .item-description {
+            margin-bottom: 15px;
+            color: #b0bec5;
+            font-size: 14px;
+        }
+        
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .item-price {
+            font-weight: bold;
+            color: #81c784;
+        }
+        
+        .item-hashrate {
+            color: #ffb74d;
+        }
+        
+        button {
+            background-color: #4fc3f7;
+            color: #0f1923;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #3ab4eb;
+        }
+        
+        button:disabled {
+            background-color: #607d8b;
+            cursor: not-allowed;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .nav-button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        
+        .reset-btn {
+            background-color: #f44336;
+        }
+        
+        .reset-btn:hover {
+            background-color: #e53935;
+        }
+        
+        .projects-btn {
+            background-color: #81c784;
+        }
+        
+        .projects-btn:hover {
+            background-color: #66bb6a;
+        }
+        
+        .animation {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/4781/4781766.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .upgrade-effect {
+            position: absolute;
+            background-color: rgba(79, 195, 247, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ripple 1s forwards;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transform: translateX(200%);
+            transition: transform 0.3s;
+            z-index: 100;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Крипто-Ферма</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="balance">0.00</div>
+                <div class="stat-label">Баланс (BTC)</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="hashrate">0</div>
+                <div class="stat-label">Хешрейт (H/s)</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="btcPrice">50,000</div>
+                <div class="stat-label">Цена BTC (USD)</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="totalMined">0.00</div>
+                <div class="stat-label">Всего добыто (BTC)</div>
+            </div>
+        </div>
+        
+        <div class="shop">
+            <div class="item" id="gpu-item">
+                <div class="item-header">
+                    <span class="item-name">Видеокарта</span>
+                    <span class="item-level" id="gpu-level">Ур. 0</span>
+                </div>
+                <div class="item-description">
+                    Базовая видеокарта для майнинга. Низкая эффективность, но и цена небольшая.
+                </div>
+                <div class="item-footer">
+                    <span class="item-price" id="gpu-price">100 USD</span>
+                    <span class="item-hashrate" id="gpu-hashrate">10 H/s</span>
+                    <button id="gpu-buy">Купить</button>
+                </div>
+            </div>
+            
+            <div class="item" id="asic-item">
+                <div class="item-header">
+                    <span class="item-name">ASIC-майнер</span>
+                    <span class="item-level" id="asic-level">Ур. 0</span>
+                </div>
+                <div class="item-description">
+                    Специализированное устройство для майнинга. Значительно мощнее видеокарт.
+                </div>
+                <div class="item-footer">
+                    <span class="item-price" id="asic-price">1,000 USD</span>
+                    <span class="item-hashrate" id="asic-hashrate">100 H/s</span>
+                    <button id="asic-buy">Купить</button>
+                </div>
+            </div>
+            
+            <div class="item" id="farm-item">
+                <div class="item-header">
+                    <span class="item-name">Майнинг-ферма</span>
+                    <span class="item-level" id="farm-level">Ур. 0</span>
+                </div>
+                <div class="item-description">
+                    Целая ферма из нескольких ASIC-майнеров. Требует много места и электроэнергии.
+                </div>
+                <div class="item-footer">
+                    <span class="item-price" id="farm-price">10,000 USD</span>
+                    <span class="item-hashrate" id="farm-hashrate">1,000 H/s</span>
+                    <button id="farm-buy">Купить</button>
+                </div>
+            </div>
+            
+            <div class="item" id="warehouse-item">
+                <div class="item-header">
+                    <span class="item-name">Склад ферм</span>
+                    <span class="item-level" id="warehouse-level">Ур. 0</span>
+                </div>
+                <div class="item-description">
+                    Большой склад с десятками майнинг-ферм. Приносит огромный доход.
+                </div>
+                <div class="item-footer">
+                    <span class="item-price" id="warehouse-price">100,000 USD</span>
+                    <span class="item-hashrate" id="warehouse-hashrate">10,000 H/s</span>
+                    <button id="warehouse-buy">Купить</button>
+                </div>
+            </div>
+            
+            <div class="item" id="factory-item">
+                <div class="item-header">
+                    <span class="item-name">Завод майнеров</span>
+                    <span class="item-level" id="factory-level">Ур. 0</span>
+                </div>
+                <div class="item-description">
+                    Целый завод, производящий майнеры. Максимальный уровень дохода.
+                </div>
+                <div class="item-footer">
+                    <span class="item-price" id="factory-price">1,000,000 USD</span>
+                    <span class="item-hashrate" id="factory-hashrate">100,000 H/s</span>
+                    <button id="factory-buy">Купить</button>
+                </div>
+            </div>
+            
+            <div class="item" id="upgrade-item">
+                <div class="item-header">
+                    <span class="item-name">Апгрейд эффективности</span>
+                    <span class="item-level" id="upgrade-level">Ур. 0</span>
+                </div>
+                <div class="item-description">
+                    Улучшает эффективность всего оборудования на 20% за уровень.
+                </div>
+                <div class="item-footer">
+                    <span class="item-price" id="upgrade-price">5,000 USD</span>
+                    <span class="item-hashrate">+20% к хешрейту</span>
+                    <button id="upgrade-buy">Купить</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-button reset-btn" id="reset-btn">Начать заново</button>
+            <button class="nav-button projects-btn" id="projects-btn">Мои проекты</button>
+        </div>
+    </div>
+    
+    <div class="animation"></div>
+    <div class="notification" id="notification">Уведомление</div>
+    
+    <script>
+        // Состояние игры
+        const gameState = {
+            balance: 0,
+            usd: 100,
+            hashrate: 0,
+            totalMined: 0,
+            btcPrice: 50000,
+            
+            items: {
+                gpu: { level: 0, basePrice: 100, baseHashrate: 10 },
+                asic: { level: 0, basePrice: 1000, baseHashrate: 100 },
+                farm: { level: 0, basePrice: 10000, baseHashrate: 1000 },
+                warehouse: { level: 0, basePrice: 100000, baseHashrate: 10000 },
+                factory: { level: 0, basePrice: 1000000, baseHashrate: 100000 },
+                upgrade: { level: 0, basePrice: 5000 }
+            },
+            
+            lastUpdate: Date.now()
+        };
+        
+        // Элементы интерфейса
+        const elements = {
+            balance: document.getElementById('balance'),
+            hashrate: document.getElementById('hashrate'),
+            btcPrice: document.getElementById('btcPrice'),
+            totalMined: document.getElementById('totalMined'),
+            
+            gpuLevel: document.getElementById('gpu-level'),
+            gpuPrice: document.getElementById('gpu-price'),
+            gpuHashrate: document.getElementById('gpu-hashrate'),
+            gpuBuy: document.getElementById('gpu-buy'),
+            
+            asicLevel: document.getElementById('asic-level'),
+            asicPrice: document.getElementById('asic-price'),
+            asicHashrate: document.getElementById('asic-hashrate'),
+            asicBuy: document.getElementById('asic-buy'),
+            
+            farmLevel: document.getElementById('farm-level'),
+            farmPrice: document.getElementById('farm-price'),
+            farmHashrate: document.getElementById('farm-hashrate'),
+            farmBuy: document.getElementById('farm-buy'),
+            
+            warehouseLevel: document.getElementById('warehouse-level'),
+            warehousePrice: document.getElementById('warehouse-price'),
+            warehouseHashrate: document.getElementById('warehouse-hashrate'),
+            warehouseBuy: document.getElementById('warehouse-buy'),
+            
+            factoryLevel: document.getElementById('factory-level'),
+            factoryPrice: document.getElementById('factory-price'),
+            factoryHashrate: document.getElementById('factory-hashrate'),
+            factoryBuy: document.getElementById('factory-buy'),
+            
+            upgradeLevel: document.getElementById('upgrade-level'),
+            upgradePrice: document.getElementById('upgrade-price'),
+            upgradeBuy: document.getElementById('upgrade-buy'),
+            
+            resetBtn: document.getElementById('reset-btn'),
+            projectsBtn: document.getElementById('projects-btn'),
+            notification: document.getElementById('notification')
+        };
+        
+        // Инициализация игры
+        function initGame() {
+            loadGame();
+            updateUI();
+            setInterval(gameLoop, 1000);
+            setInterval(updateBTCPrice, 30000);
+            
+            // Назначение обработчиков событий
+            elements.gpuBuy.addEventListener('click', () => buyItem('gpu'));
+            elements.asicBuy.addEventListener('click', () => buyItem('asic'));
+            elements.farmBuy.addEventListener('click', () => buyItem('farm'));
+            elements.warehouseBuy.addEventListener('click', () => buyItem('warehouse'));
+            elements.factoryBuy.addEventListener('click', () => buyItem('factory'));
+            elements.upgradeBuy.addEventListener('click', () => buyUpgrade());
+            
+            elements.resetBtn.addEventListener('click', resetGame);
+            elements.projectsBtn.addEventListener('click', () => {
+                window.location.href = 'https://kirill-fe.github.io/projects';
+            });
+        }
+        
+        // Основной игровой цикл
+        function gameLoop() {
+            const now = Date.now();
+            const deltaTime = (now - gameState.lastUpdate) / 1000; // в секундах
+            gameState.lastUpdate = now;
+            
+            // Майнинг BTC
+            const btcMined = (gameState.hashrate * deltaTime) / 1000000;
+            gameState.balance += btcMined;
+            gameState.totalMined += btcMined;
+            
+            // Обновление UI
+            updateUI();
+            saveGame();
+        }
+        
+        // Обновление цены BTC
+        function updateBTCPrice() {
+            // Случайное изменение цены ±5%
+            const changePercent = (Math.random() * 0.1) - 0.05;
+            gameState.btcPrice = Math.max(1000, gameState.btcPrice * (1 + changePercent));
+            updateUI();
+            
+            showNotification(`Цена BTC: $${Math.floor(gameState.btcPrice)} (${changePercent > 0 ? '+' : ''}${Math.floor(changePercent * 100)}%)`);
+        }
+        
+        // Покупка предмета
+        function buyItem(itemType) {
+            const item = gameState.items[itemType];
+            const price = getItemPrice(itemType);
+            
+            if (gameState.usd >= price) {
+                gameState.usd -= price;
+                item.level++;
+                
+                // Пересчет хешрейта
+                calculateHashrate();
+                
+                // Эффект при покупке
+                createUpgradeEffect(elements[`${itemType}-item`]);
+                showNotification(`${getItemName(itemType)} улучшена до уровня ${item.level}!`);
+                
+                updateUI();
+            } else {
+                showNotification('Недостаточно USD!', 'error');
+            }
+        }
+        
+        // Покупка апгрейда
+        function buyUpgrade() {
+            const upgrade = gameState.items.upgrade;
+            const price = getUpgradePrice();
+            
+            if (gameState.usd >= price) {
+                gameState.usd -= price;
+                upgrade.level++;
+                
+                // Пересчет хешрейта
+                calculateHashrate();
+                
+                // Эффект при покупке
+                createUpgradeEffect(elements['upgrade-item']);
+                showNotification(`Апгрейд эффективности улучшен до уровня ${upgrade.level}!`);
+                
+                updateUI();
+            } else {
+                showNotification('Недостаточно USD!', 'error');
+            }
+        }
+        
+        // Расчет хешрейта
+        function calculateHashrate() {
+            const upgradeMultiplier = 1 + (gameState.items.upgrade.level * 0.2);
+            
+            gameState.hashrate = (
+                gameState.items.gpu.level * gameState.items.gpu.baseHashrate +
+                gameState.items.asic.level * gameState.items.asic.baseHashrate +
+                gameState.items.farm.level * gameState.items.farm.baseHashrate +
+                gameState.items.warehouse.level * gameState.items.warehouse.baseHashrate +
+                gameState.items.factory.level * gameState.items.factory.baseHashrate
+            ) * upgradeMultiplier;
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            // Обновление статистики
+            elements.balance.textContent = gameState.balance.toFixed(8);
+            elements.hashrate.textContent = Math.floor(gameState.hashrate).toLocaleString();
+            elements.btcPrice.textContent = Math.floor(gameState.btcPrice).toLocaleString();
+            elements.totalMined.textContent = gameState.totalMined.toFixed(8);
+            
+            // Обновление информации о предметах
+            updateItemUI('gpu');
+            updateItemUI('asic');
+            updateItemUI('farm');
+            updateItemUI('warehouse');
+            updateItemUI('factory');
+            updateUpgradeUI();
+            
+            // Проверка, какие предметы можно купить
+            checkAffordability();
+        }
+        
+        // Обновление UI предмета
+        function updateItemUI(itemType) {
+            const item = gameState.items[itemType];
+            elements[`${itemType}Level`].textContent = `Ур. ${item.level}`;
+            elements[`${itemType}Price`].textContent = `${getItemPrice(itemType).toLocaleString()} USD`;
+            elements[`${itemType}Hashrate`].textContent = `${(item.level * item.baseHashrate * (1 + gameState.items.upgrade.level * 0.2)).toLocaleString()} H/s`;
+        }
+        
+        // Обновление UI апгрейда
+        function updateUpgradeUI() {
+            const upgrade = gameState.items.upgrade;
+            elements.upgradeLevel.textContent = `Ур. ${upgrade.level}`;
+            elements.upgradePrice.textContent = `${getUpgradePrice().toLocaleString()} USD`;
+        }
+        
+        // Проверка, какие предметы можно купить
+        function checkAffordability() {
+            toggleButton(elements.gpuBuy, gameState.usd >= getItemPrice('gpu'));
+            toggleButton(elements.asicBuy, gameState.usd >= getItemPrice('asic'));
+            toggleButton(elements.farmBuy, gameState.usd >= getItemPrice('farm'));
+            toggleButton(elements.warehouseBuy, gameState.usd >= getItemPrice('warehouse'));
+            toggleButton(elements.factoryBuy, gameState.usd >= getItemPrice('factory'));
+            toggleButton(elements.upgradeBuy, gameState.usd >= getUpgradePrice());
+        }
+        
+        // Включение/выключение кнопки
+        function toggleButton(button, enabled) {
+            button.disabled = !enabled;
+        }
+        
+        // Получение цены предмета
+        function getItemPrice(itemType) {
+            const item = gameState.items[itemType];
+            return item.basePrice * Math.pow(1.15, item.level);
+        }
+        
+        // Получение цены апгрейда
+        function getUpgradePrice() {
+            const upgrade = gameState.items.upgrade;
+            return upgrade.basePrice * Math.pow(1.5, upgrade.level);
+        }
+        
+        // Получение имени предмета
+        function getItemName(itemType) {
+            const names = {
+                gpu: 'Видеокарта',
+                asic: 'ASIC-майнер',
+                farm: 'Майнинг-ферма',
+                warehouse: 'Склад ферм',
+                factory: 'Завод майнеров'
+            };
+            return names[itemType];
+        }
+        
+        // Создание эффекта при покупке
+        function createUpgradeEffect(element) {
+            const rect = element.getBoundingClientRect();
+            const effect = document.createElement('div');
+            effect.className = 'upgrade-effect';
+            effect.style.left = `${rect.left + rect.width / 2}px`;
+            effect.style.top = `${rect.top + rect.height / 2}px`;
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 1000);
+        }
+        
+        // Показать уведомление
+        function showNotification(message, type = 'success') {
+            elements.notification.textContent = message;
+            elements.notification.style.backgroundColor = type === 'error' ? '#f44336' : '#4caf50';
+            elements.notification.classList.add('show');
+            
+            setTimeout(() => {
+                elements.notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Сброс игры
+        function resetGame() {
+            if (confirm('Вы уверены, что хотите начать заново? Все прогресс будет потерян.')) {
+                Object.keys(gameState.items).forEach(key => {
+                    gameState.items[key].level = 0;
+                });
+                
+                gameState.balance = 0;
+                gameState.usd = 100;
+                gameState.hashrate = 0;
+                gameState.totalMined = 0;
+                gameState.btcPrice = 50000;
+                
+                calculateHashrate();
+                updateUI();
+                saveGame();
+                
+                showNotification('Игра сброшена. Начинаем заново!');
+            }
+        }
+        
+        // Сохранение игры
+        function saveGame() {
+            localStorage.setItem('cryptoFarmSave', JSON.stringify(gameState));
+        }
+        
+        // Загрузка игры
+        function loadGame() {
+            const save = localStorage.getItem('cryptoFarmSave');
+            if (save) {
+                const parsed = JSON.parse(save);
+                Object.assign(gameState, parsed);
+                calculateHashrate();
+                showNotification('Игра загружена!');
+            }
+        }
+        
+        // Запуск игры
+        window.onload = initGame;
+    </script>
+</body>
+</html>
